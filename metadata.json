@@ -1,0 +1,5 @@
+{
+  "name": "DevUtils - Offline Developer Tools",
+  "description": "A collection of offline, browser-based utilities for developers. Fast, privacy-focused, and deterministic.",
+  "requestFramePermissions": []
+}
