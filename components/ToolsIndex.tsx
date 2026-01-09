@@ -37,8 +37,8 @@ export const ToolsIndex: React.FC = () => {
         keywords={['developer tools', 'online tools', 'json formatter', 'case converter', 'base64 encoder', 'jwt decoder', 'yaml converter', 'free tools']}
         structuredData={structuredData}
       />
-      <main className="flex flex-col items-center justify-center h-full text-center p-8">
-        <div className="w-16 h-16 bg-blue-100 dark:bg-blue-500/10 rounded-full flex items-center justify-center mb-6 transition-colors">
+      <main className="flex flex-col items-center text-center p-8 overflow-y-auto">
+        <div className="w-16 h-16 bg-blue-100 dark:bg-blue-500/10 rounded-full flex items-center justify-center mb-6 transition-colors mt-8">
           <Wrench className="w-8 h-8 text-blue-600 dark:text-blue-500" />
         </div>
         <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">Free Online Developer Tools</h1>
