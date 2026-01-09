@@ -9,7 +9,8 @@ import {
   Globe, 
   Binary, 
   ShieldCheck,
-  FileCode
+  FileCode,
+  Minimize2
 } from 'lucide-react';
 
 export const TOOLS: ToolDefinition[] = [
@@ -54,6 +55,15 @@ export const TOOLS: ToolDefinition[] = [
       { key: 'normalizeLines', label: 'Normalize Newlines', type: 'boolean', defaultValue: true }
     ],
     transform: T.cleanupWhitespace
+  },
+  {
+    id: 'single-line',
+    title: 'Multiline to Single Line',
+    description: 'Convert multiline text into a single line for terminal use.',
+    category: 'Text',
+    path: '/text/single-line',
+    icon: Minimize2,
+    transform: T.toSingleLine
   },
 
   // --- Data ---

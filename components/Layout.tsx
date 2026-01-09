@@ -137,7 +137,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col min-w-0 pt-16 lg:pt-0 bg-white dark:bg-black transition-colors duration-200">
+      <main className="flex-1 flex flex-col min-w-0 min-h-0 pt-16 lg:pt-0 bg-white dark:bg-black transition-colors duration-200 overflow-hidden">
         {children}
       </main>
     </div>

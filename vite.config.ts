@@ -18,6 +18,17 @@ export default defineConfig(({ mode }) => {
         alias: {
           '@': path.resolve(__dirname, '.'),
         }
+      },
+      build: {
+        rollupOptions: {
+          output: {
+            manualChunks: undefined
+          }
+        }
+      },
+      preview: {
+        port: 3000,
+        host: '0.0.0.0'
       }
     };
 });

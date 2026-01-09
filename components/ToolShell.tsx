@@ -1,8 +1,12 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams, useLocation } from 'react-router-dom';
 import { Copy, Trash2, AlertCircle } from 'lucide-react';
 import { ToolDefinition } from '../types';
 import { clsx } from 'clsx';
+import { SEOHead } from './SEOHead';
+import { SEOContent } from './SEOContent';
+import { TOOL_SEO } from '../config/toolSEO';
+import { TOOLS } from '../config/tools';
 
 interface ToolShellProps {
   tool: ToolDefinition;
@@ -10,6 +14,8 @@ interface ToolShellProps {
 
 export const ToolShell: React.FC<ToolShellProps> = ({ tool }) => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
+  const seoData = TOOL_SEO[tool.id];
   
   // Initialize state from URL or defaults
   const [input, setInput] = useState(() => searchParams.get('input') || '');
@@ -29,6 +35,29 @@ export const ToolShell: React.FC<ToolShellProps> = ({ tool }) => {
   const [output, setOutput] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [copyFeedback, setCopyFeedback] = useState(false);
+
+  const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+  const canonicalUrl = `${baseUrl}${location.pathname}`;
+  
+  const relatedTools = seoData?.relatedToolIds
+    ?.map(id => TOOLS.find(t => t.id === id))
+    .filter(Boolean)
+    .map(t => ({ path: t!.path, title: t!.title })) || [];
+
+  const structuredData = seoData ? {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: tool.title,
+    description: seoData.metaDescription,
+    applicationCategory: 'DeveloperApplication',
+    operatingSystem: 'All',
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'USD'
+    },
+    url: canonicalUrl
+  } : undefined;
 
   // Sync state to URL (debounced for input)
   useEffect(() => {
@@ -71,20 +100,38 @@ export const ToolShell: React.FC<ToolShellProps> = ({ tool }) => {
     setSearchParams({});
   };
 
-  return (
-    <div className="h-full flex flex-col">
-      {/* Header */}
-      <header className="px-8 py-6 border-b border-slate-200 dark:border-gray-800">
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-3">
-          <tool.icon className="w-6 h-6 text-blue-500" />
-          {tool.title}
-        </h1>
-        <p className="text-slate-500 dark:text-gray-400">{tool.description}</p>
-      </header>
+  const primaryKeyword = seoData?.primaryKeyword || tool.title.toLowerCase();
+  const pageTitle = `${primaryKeyword.charAt(0).toUpperCase() + primaryKeyword.slice(1)} – Free Online Tool`;
+  const metaDescription = seoData?.metaDescription || `${tool.description} Runs 100% in your browser. No data leaves your device.`;
 
-      {/* Toolbar / Options */}
-      {tool.options && tool.options.length > 0 && (
-        <div className="px-8 py-4 border-b border-slate-200 dark:border-gray-800 bg-slate-50 dark:bg-gray-900/50 flex flex-wrap gap-6 transition-colors">
+  return (
+    <>
+      <SEOHead
+        title={pageTitle}
+        description={metaDescription}
+        canonicalUrl={canonicalUrl}
+        keywords={[primaryKeyword, tool.category.toLowerCase(), 'developer tools', 'online tool', 'free tool']}
+        structuredData={structuredData}
+      />
+      <main className="flex flex-col overflow-y-auto">
+        <header className="px-8 py-6 border-b border-slate-200 dark:border-gray-800 shrink-0">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-3">
+            <tool.icon className="w-6 h-6 text-blue-500" />
+            {primaryKeyword.charAt(0).toUpperCase() + primaryKeyword.slice(1)}
+          </h1>
+          {seoData?.whatItDoes && (
+            <p className="text-slate-700 dark:text-gray-300 leading-relaxed max-w-3xl">
+              {seoData.whatItDoes}
+            </p>
+          )}
+          {!seoData?.whatItDoes && (
+            <p className="text-slate-500 dark:text-gray-400">{tool.description}</p>
+          )}
+        </header>
+
+        <section aria-label="Tool options" className="shrink-0">
+          {tool.options && tool.options.length > 0 && (
+            <div className="px-8 py-4 border-b border-slate-200 dark:border-gray-800 bg-slate-50 dark:bg-gray-900/50 flex flex-wrap gap-6 transition-colors">
           {tool.options.map(opt => (
             <div key={opt.key} className={clsx(
               "flex gap-3",
@@ -138,11 +185,11 @@ export const ToolShell: React.FC<ToolShellProps> = ({ tool }) => {
               )}
             </div>
           ))}
-        </div>
-      )}
+            </div>
+          )}
+        </section>
 
-      {/* Workspace */}
-      <div className="flex-1 flex flex-col lg:flex-row min-h-0">
+        <section aria-label="Tool workspace" className="flex-1 flex flex-col lg:flex-row min-h-[400px]">
         {/* Input */}
         <div className="flex-1 flex flex-col border-b lg:border-b-0 lg:border-r border-slate-200 dark:border-gray-800 min-h-[300px]">
           <div className="px-4 py-2 border-b border-slate-200 dark:border-gray-800 bg-slate-100 dark:bg-gray-900/30 flex justify-between items-center transition-colors">
@@ -197,7 +244,21 @@ export const ToolShell: React.FC<ToolShellProps> = ({ tool }) => {
              )}
           </div>
         </div>
-      </div>
-    </div>
+        </section>
+
+        {seoData && (
+          <SEOContent
+            toolTitle={tool.title}
+            primaryKeyword={primaryKeyword}
+            whatItDoes={seoData.whatItDoes}
+            useCases={seoData.useCases}
+            exampleInput={seoData.exampleInput}
+            exampleOutput={seoData.exampleOutput}
+            faqs={seoData.faqs}
+            relatedTools={relatedTools}
+          />
+        )}
+      </main>
+    </>
   );
 };

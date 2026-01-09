@@ -48,6 +48,13 @@ export const cleanupWhitespace = (input: string, options: { trim: boolean, norma
   return output;
 };
 
+export const toSingleLine = (input: string, options: Record<string, any>): string => {
+  if (!input) return '';
+  let output = input.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  output = output.replace(/\n/g, ' ');
+  return output;
+};
+
 // --- Data Utilities ---
 
 export const convertJsonYaml = (input: string, options: { direction: 'json-to-yaml' | 'yaml-to-json' }): string => {
